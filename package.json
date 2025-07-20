@@ -1,0 +1,23 @@
+{
+  "name": "zenn_content",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nijigen-plot/zenn_content.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nijigen-plot/zenn_content/issues"
+  },
+  "homepage": "https://github.com/nijigen-plot/zenn_content#readme",
+  "description": "",
+  "dependencies": {
+    "zenn-cli": "^0.2.1"
+  }
+}
