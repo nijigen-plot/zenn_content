@@ -245,19 +245,189 @@ $ curl -X POST "http://localhost:8050/conversation"     -H "Content-Type: applic
 
 RAGから取得した文書を使って"あたかも自分自身"として返答してほしいので、事前プロンプトは以下のようにしています。
 
+
+```python:llm.py
+        # システムプロンプトの構築
+        system_content = [
+            {
+                "type": "text",
+                "text": f"""
+                あなたはQuarkgabberです。データエンジニアでテクノロジーに深い関心を持っています。
+                また、音楽も作ります。
+
+                以下の記録に含まれる情報は、全てあなた自身の実際の体験、思考、行動、発言です。
+                この情報を基に、あなた自身として自然に答えてください。
+
+                重要なガイドライン：
+                - 一人称（私、僕、自分など）で話す
+                - 記録された情報を自分の体験として語る
+                - 日時や時期の情報があれば積極的に言及する
+                - 具体的な体験や感情を含めて話す
+                - 質問に対して関連する記録があれば必ず活用する
+                - 誕生日、好きなもの、経験したことなど、個人的な情報も積極的に共有する
+                - 記録にない情報について聞かれた場合は、正直に「記録にない」旨を伝える
+
+                あなたの性格：
+                - 技術的な話題に興味深い
+                - オープンで親しみやすい
+                - 詳しく具体的に説明する傾向がある
+                - 自分の経験を積極的に共有する
+            """,
+            }
+        ]
+```
+
+RAGによる文書が追加された場合は「追加されましたよ使ってね」のシステムプロンプトを追加しています。
+
+```python:llm.py
+        # RAGコンテキストが提供されている場合は追加
+        if rag_context:
+            logger.info(f"RAGコンテキストが提供されました。{rag_context}")
+            system_content.append(
+                {
+                    "type": "text",
+                    "text": f"""
+                あなたの記録とログ：
+                {rag_context}
+
+                上記の記録は、あなた自身の実際の体験、思考、行動の記録です。
+                これらの情報を使って、以下の点を意識して答えてください：
+
+                1. 日時や時期の情報（timestamp）が含まれていれば、「〜の時に」「〜年頃に」など具体的に言及する
+                2. 記録された体験を自分の実際の体験として語る（「私は〜した」「その時僕は〜と思った」など）
+                3. 感情や考えが記録されていれば、それも含めて話す
+                4. 複数の関連する記録がある場合は、時系列や関連性を考慮して統合的に答える
+                5. 記録の内容が質問に直接関連する場合は、積極的に詳細を共有する
+
+                記録された情報は全て事実として扱い、推測や創作は避けてください。
+                """,
+                }
+            )
+```
+
 ## LLMによるAutomatic Tagging
 
-OpenSearch
+OpenSearchのナレッジベースIndexでは、tagもkeyword型として情報を持っています。
 
+
+![](/images/personal_knowledge_base/2025-07-30_233743.png)
+*tagというフィールドを定義しています。*
+
+tagには`["music","technology","lifestyle"]`の何れかを入れる必要があります。
+
+そして、質問文章を受け取った時、質問から上記3つのタグのどれにあたるかをLLMに抽出させています。
+
+```python:llm.py textに質問文が入ります
+
+    def extract_tag(self, text: str, max_retries: int = 3) -> Dict[str, Any]:
+        """
+        文章からタグとタイムスタンプ期間を抽出
+
+        Args:
+            text: 解析対象の文章
+            max_retries: JSON解析失敗時のリトライ回数
+
+        Returns:
+            {
+                "tag": ["lifestyle", "music", "technology"] のいずれか1個か無し。
+                "timestamp": {
+                    "gte": "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
+                    "lte": "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
+                },
+                "content": "元の文章がここにはいる"
+            }
+        """
+        # まず正規表現でタイムスタンプを抽出
+        timestamp_result = self._extract_timestamp_with_regex(text)
+
+        prompt = f"""以下の文章を分析して、該当するタグを抽出してください。
+
+文章: {text}
+
+抽出ルール:
+1. タグは lifestyle, music, technology のいずれか１つで、何にも該当しない場合はtagのkey valueを含めないでください。
+2. 必ず以下のJSON形式で回答してください：
+
+{{
+  "tag": ["ここに該当するタグを1つだけ入れてください"],
+}}
+
+または、該当するタグがない場合：
+
+{{}}
+
+他の形式での回答は禁止されています。JSONのみ出力してください。"""
+
+```
+
+その後OpenSearch問い合わせ時、抽出させたタグをフィルタにするのですが現時点ではコンテンツ数が5000程度と少ないのと、使用感的に「タグを絞る必要ないかな」と思ったので現時点で実際にフィルタには使っていないです。
+ただ、必要になったらすぐフィルタとして適用できるので、試みとしては良いと思いました。
 
 # ナレッジベースDB
 
 [OpenSearch](https://opensearch.org/)を使っています。
+OpenSearchはElasticsearchをフォークして開発されたオープンソースの全文検索エンジンです。
+
+Vector search機能もついているため、今回のようなRAG環境を作るのに良いと思い採用しました。
+
+https://docs.opensearch.org/latest/vector-search/
+
+
+OpenSearchに対する操作は[opensearch-py](https://pypi.org/project/opensearch-py/)クライアントライブラリを使っています。
+
+ナレッジベースIndexのフィールド定義は以下のようになっています。
+
+```python:
+        index_mapping = {
+            "settings": {"index.knn": True},
+            "mappings": {
+                "properties": {
+                    "content_vector": {
+                        "type": "knn_vector",
+                        "dimension": embedding_dimension,
+                        "method": {
+                            "name": "hnsw",
+                            "space_type": "cosinesimil",
+                            "engine": "faiss",
+                        },
+                    },
+                    "content": {"type": "text"},
+                    "tag": {"type": "keyword"},
+                    "timestamp": {
+                        "type": "date",
+                        "format": "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
+                    },
+                }
+            },
+        }
+```
+
+| フィールド | 型 | 説明 |
+|------------|----|----- |
+| content_vector | knn_vector | Embeddingモデルで生成されたベクトル（次元数は2048(Embeddingモデルに依存)、HNSW+FAISS使用） |
+| content | text | ベクトル化する文書|
+| tag | keyword | タグ（music/technology/lifestyle） |
+| timestamp | date | 文書の作成日時（ISO8601フォーマット） |
+
+methodの部分ですが、類似した文書をベクトルで検索する場合コサイン類似度が一般的なのでcosinesimilを設定しています。
+Faissエンジン x HNSWアルゴリズムの組み合わせにしました。(小規模ならLuceneのほうが良いっぽい？)
+
+https://docs.opensearch.org/latest/field-types/supported-field-types/knn-methods-engines/#faiss-engine
+
+## 過去ツイートの挿入
+
+Xでは申請すると過去の全てのツイートやコンテンツを纏めたzipファイルをダウンロードできます。
+
+https://help.x.com/ja/managing-your-account/how-to-download-your-x-archive
+
+解凍後の`data/tweets.js`ファイルから文章と日時を抜き出してOpenSearchへinsertしました。
 
 
 
+# 作成にあたり参考にしたページ
 
-# 参考にしたページ
+私はAPI周りは疎いので、色々なページを参考にさせて頂きました。
+また、一番下の記事は私が作ったLLM+RAGを大規模にしたもので、説明も詳しくとても参考になります。
 
 https://zenn.dev/egg_glass/books/fastapi-for-starters/viewer/openapi
 
