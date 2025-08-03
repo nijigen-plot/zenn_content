@@ -168,8 +168,7 @@ class ConversationRequest(BaseModel):
   "search_count": 10,
   "used_knowledge": true,
   "processing_time": 7.33,
-  "model_type": "openai",
-  "model_size": "4b"
+  "model_type": "openai"
 }
 ```
 
@@ -227,7 +226,7 @@ $ curl -X POST "http://localhost:8050/conversation"     -H "Content-Type: applic
   、その挑戦を楽しんでいるんだ。
 
 …そう、最近の音楽の出来事だよ。ちょっと変わった体験だったけどね。","search_results":[{"id":"WMFm5ZcBlg4zycrBZ0lN","score":0.8039558,"content":"曲最後の詰めやろうとしたら急にWavesの認証が通らなくなった・・・PowerShell周り弄ったら直ったけど、プラグイン認証周り勝手が悪いんだよなーWavesは","tag":"music","timestamp":"2025-07-05T18:00:00.000
-  000"}],"search_count":1,"used_knowledge":true,"processing_time":45.23,"model_type":"gguf","model_size":"4b"}
+  000"}],"search_count":1,"used_knowledge":true,"processing_time":45.23,"model_type":"gguf"}
 ```
 
 将来的にはツヨツヨローカルマシンでLLMもローカル環境にしてみたいですね！
@@ -351,7 +350,8 @@ tagには`["music","technology","lifestyle"]`の何れかを入れる必要が�
 
 ```
 
-その後OpenSearch問い合わせ時、抽出させたタグをフィルタにするのですが現時点ではコンテンツ数が5000程度と少ないのと、使用感的に「タグを絞る必要ないかな」と思ったので現時点で実際にフィルタには使っていないです。
+その後OpenSearch問い合わせ時、抽出させたタグをフィルタにするのですが
+現時点ではコンテンツ数が5000程度と少ないのと、使用感的に「タグを絞る必要ないかな」と思ったので現時点で実際にフィルタには使っていないです。
 ただ、必要になったらすぐフィルタとして適用できるので、試みとしては良いと思いました。
 
 ## ナレッジベースDB
