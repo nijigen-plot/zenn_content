@@ -3,7 +3,7 @@ title: "【LLM+RAG】自分自身と会話できるナレッジベースシス�
 emoji: "📄"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Python", "RAG", "AI", "LLM", "RaspberryPi"]
-published: false
+published: true
 ---
 
 
@@ -41,7 +41,7 @@ Raspberry Pi を3台使った構成になっていますが
 のような理由からです。
 
 なので1台でもクラウドでも全然問題ないです。
-ただEmbeddingの際にメモリを消費するので、**RAMは16GB以上は必要**だと思います。
+ただEmbeddingの際にメモリを消費するので、使った感じ**RAMは16GB以上は必要**だと思います(正確なものは後でベンチマーク等取りたいです)
 
 また、LLMはデフォルトOpenAI APIを使用しますが、ローカルモデルでも動作するようになっています。(OpenAI APIをデフォルトにしている理由は[後述](#LLM)します)
 
