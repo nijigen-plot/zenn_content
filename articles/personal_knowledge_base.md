@@ -7,9 +7,32 @@ published: true
 ---
 
 
-自分が過去やったことや思ったことをチャットボットで共有できるといいな～と思い、X(旧Twitter)投稿文とAPIによる文書INSERTの仕組みを作り、自分自身のナレッジを追加した会話システム（所謂LLM+RAG構成のチャットボット）を作ってみました。
+自分が過去やったことや思ったことをチャットボットで共有できるといいな～と思い、X(旧Twitter)投稿文とAPIによる文書INSERTの仕組みを作り、**自分自身のナレッジを追加した会話システム**（所謂LLM+RAG構成のチャットボット）を作ってみました。
 
 その中で考えた部分について、ざっくり書いていこうと思います。
+
+## アプリ
+
+https://home.quark-hardcore.com/personal-knowledge-base/app/
+
+![](https://storage.googleapis.com/zenn-user-upload/087c7ca00c3b-20250721.png)
+*使っているところ*
+
+
+[Streamlit](https://streamlit.io/)で作りました。
+質問⇔返信のやり取りのconversation APIを作っていますが、体験を良くする意図でそれを叩くだけのフロント部分を作りました。
+
+画像下部の「趣味・出来事何でも質問OK！」の部分に質問を入れるとナレッジベースをもとに質問を返します！
+
+もしよければ使ってみていただけると、
+- どれくらい独自文書が使われているか
+- レスポンススピードがどれくらいか
+- 適切な返答をしているか
+
+がある程度分かると思います。
+
+見た目の部分はStreamlit公式の[Build a basic LLM chat app](https://docs.streamlit.io/develop/tutorials/chat-and-llm-apps/build-conversational-apps)を参考にしました。
+
 
 
 ## 構成
@@ -46,26 +69,6 @@ Raspberry Pi を3台使った構成になっていますが
 また、LLMはデフォルトOpenAI APIを使用しますが、ローカルモデルでも動作するようになっています。(OpenAI APIをデフォルトにしている理由は[後述](#llm)します)
 
 
-
-## アプリ
-
-https://home.quark-hardcore.com/personal-knowledge-base/app/
-
-![](https://storage.googleapis.com/zenn-user-upload/087c7ca00c3b-20250721.png)
-*使っているところ*
-
-
-[Streamlit](https://streamlit.io/)で作りました。
-質問⇔返信のやり取りのconversation APIを作っていますが、体験を良くする意図でそれを叩くだけのフロント部分を作りました。
-
-もしよければ使ってみていただけると、
-- どれくらい独自文書が使われているか
-- レスポンススピードがどれくらいか
-- 適切な返答をしているか
-
-がある程度分かると思います。
-
-見た目の部分はStreamlit公式の[Build a basic LLM chat app](https://docs.streamlit.io/develop/tutorials/chat-and-llm-apps/build-conversational-apps)を参考にしました。
 
 
 ## API
@@ -432,9 +435,11 @@ https://github.com/nijigen-plot/personal-knowledge-base
 ### リモートMCPサーバー
 
 MCPサーバー経由でナレッジベースにアクセスできたらとても面白そうだなと思っています。
-20250803時点では一般の方がリモートMCPサーバーを立てるにはCloudflareを使う必要がありそうです。
+cloudflareで立てるか、自前で諸々作るか悩んでます
 
 https://www.cloudflare.com/ja-jp/press-releases/2025/cloudflare-accelerates-ai-agent-development-remote-mcp/
+
+https://zenn.dev/amana/articles/7218e65207ecbf
 
 ### 検索精度
 
@@ -452,11 +457,24 @@ Raspberry Piではなく、NVIDIAのGPUを搭載した別のPCで処理させる
 
 最近NVIDIA GB10 Grace Blackwell Superchipと128GBのユニファイドメモリを搭載した[ASUS Ascent GX10](https://www.asus.com/jp/networking-iot-servers/desktop-ai-supercomputer/ultra-small-ai-supercomputers/asus-ascent-gx10/)なるものが発売されたみたいで・・・使ってみたいですね。
 
+OpenAIのgpt-oss-20bも出ましたね！
+
+https://huggingface.co/openai/gpt-oss-20b
+
 
 ### Slack連携
 
 Slack等チャットツールからナレッジベース検索・データ挿入ができるともっと利便性が上がると思います。
 実際に仕事用の私のナレッジベースを作るなら、これは欠かせないですね。
+
+### docker-compose.ymlで起動フローをまとめる
+
+複数インスタンスで役割別に分けていますが、docker composeのprofilesを使えばdocker-compose.ymlに起動フローをまとめつつ役割別で特定イメージだけ起動することができそうです。
+
+https://docs.docker.jp/compose/profiles.html
+
+このあたりのチョイオーケストレーションもやりたいですね。
+
 
 ## 作成にあたり参考にしたページ
 
