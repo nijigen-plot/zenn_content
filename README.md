@@ -4,6 +4,7 @@ Zenn 記事作成の為のリポジトリ
 
 * [📘 How to use](https://zenn.dev/zenn/articles/zenn-cli-guide)
 
+`npx zenn new:article`で新規記事用の.mdファイル生成されます。
 
 ### Zenn Editor
 
