@@ -1,5 +1,5 @@
 ---
-title: "Athena VACUUMクエリによるS3オブジェクト削除時のAthenaレスポンス確認"
+title: "Athena VACUUMクエリによるS3オブジェクト削除時のレスポンス確認"
 emoji: "📘"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "Athena", "iceberg"]
