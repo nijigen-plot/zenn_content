@@ -232,7 +232,12 @@ $ curl -X POST "http://localhost:8050/conversation"     -H "Content-Type: applic
   000"}],"search_count":1,"used_knowledge":true,"processing_time":45.23,"model_type":"gguf"}
 ```
 
-将来的にはツヨツヨローカルマシンでLLMもローカル環境にしてみたいですね！
+https://huggingface.co/openai/gpt-oss-20b
+
+OpenAIのgpt-oss-20bも出たのでRTX 4070Ti Superで動かしてみましたが、精度は良いものの次は応答が遅くなってしまいました・・・
+ということでAPIに落ち着いています。
+
+
 
 ### プロンプト設定
 
@@ -457,17 +462,13 @@ Raspberry Piではなく、NVIDIAのGPUを搭載した別のPCで処理させる
 
 最近NVIDIA GB10 Grace Blackwell Superchipと128GBのユニファイドメモリを搭載した[ASUS Ascent GX10](https://www.asus.com/jp/networking-iot-servers/desktop-ai-supercomputer/ultra-small-ai-supercomputers/asus-ascent-gx10/)なるものが発売されたみたいで・・・使ってみたいですね。
 
-OpenAIのgpt-oss-20bも出ましたね！
-
-https://huggingface.co/openai/gpt-oss-20b
-
 
 ### Slack連携
 
 Slack等チャットツールからナレッジベース検索・データ挿入ができるともっと利便性が上がると思います。
 実際に仕事用の私のナレッジベースを作るなら、これは欠かせないですね。
 
-### docker-compose.ymlで起動フローをまとめる
+### docker-compose.ymlで起動フローをまとめる(Done)
 
 複数インスタンスで役割別に分けていますが、docker composeのprofilesを使えばdocker-compose.ymlに起動フローをまとめつつ役割別で特定イメージだけ起動することができそうです。
 
