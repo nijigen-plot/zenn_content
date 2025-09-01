@@ -39,7 +39,7 @@ https://home.quark-hardcore.com/personal-knowledge-base/app/
 
 システム全体の構成は以下のようになります。
 
-![](https://storage.googleapis.com/zenn-user-upload/4f9856543054-20250721.png)
+![](/images/personal_knowledge_base/architecture.png)
 
 画像にも記載はありますが、ざっくりシステムフローとしては
 
