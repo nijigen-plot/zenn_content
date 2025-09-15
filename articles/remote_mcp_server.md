@@ -3,7 +3,7 @@ title: "Cloudflare リモートMCPサーバーを利用してAPIを叩くMCPツ�
 emoji: "📞"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["mcp", "cloudflare"]
-published: false
+published: true
 ---
 
 ## はじめに
@@ -32,7 +32,7 @@ https://blog.cloudflare.com/remote-model-context-protocol-servers-mcp/
 
 ### 初期設定
 
-Cloudflare Docsの[Build a Remoter MCP server](https://developers.cloudflare.com/agents/guides/remote-mcp-server/)に沿って作っていきます。
+Cloudflare Docsの[Build a Remote MCP server](https://developers.cloudflare.com/agents/guides/remote-mcp-server/)に沿って作っていきます。
 
 [対象のリポジトリ](https://github.com/nijigen-plot/personal-knowledge-base)で以下を実行します。
 
@@ -221,7 +221,7 @@ $ npx @modelcontextprotocol/inspector@latest
 
 
 - `Transport Type -> SSE`
-- `URL -> http:localhost:8787/sse`
+- `URL -> http://localhost:8787/sse`
 
 と設定しconnectを押します。
 
@@ -244,7 +244,7 @@ queryに質問文を入れて、`Run Tool`を押します。
 > `URL -> http://localhost:8787/sse`
 > と設定しconnectを押します。
 
-こちらの設定ですが、リモートMCPでは[SSE(Server-Sent Events)かStreamable HTTPで通信](https://developers.cloudflare.com/agents/model-context-protocol/transport/)します。
+こちらの設定ですが、リモートMCPクライアントでは[SSE(Server-Sent Events)かStreamable HTTPで通信](https://developers.cloudflare.com/agents/model-context-protocol/transport/)します。
 
 
 - `Transport Type -> Streamable HTTP`
@@ -285,7 +285,7 @@ Cloudflareのダッシュボード「コンピューティング」→「Workers
 
 ![](/images/remote_mcp_server/スクリーンショット%202025-09-15%20170429.png)
 
-このMCPはsearch APIでOpenSearchから類似コンテンツを返すもので、その後の解釈はAI行うので、**AIの能力に依存**します。
+このMCPはsearch APIでOpenSearchから類似コンテンツを返すもので、その後の解釈はAIが行うので、**AIの能力に依存**します。
 
 Workers AI LLM Playgroundで提供されているモデルでは、あまり思ったような返事にはなりませんでした。
 
@@ -300,7 +300,7 @@ Workers AI LLM Playgroundで提供されているモデルでは、あまり思�
 
 ![](/images/remote_mcp_server/202509153.png)
 
-名前をURLを設定します。
+名前とURLを設定します。
 
 ![](/images/remote_mcp_server/202509154.png)
 

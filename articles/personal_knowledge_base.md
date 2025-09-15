@@ -437,7 +437,9 @@ https://help.x.com/ja/managing-your-account/how-to-download-your-x-archive
 
 https://github.com/nijigen-plot/personal-knowledge-base
 
-### リモートMCPサーバー
+### リモートMCPサーバー(Done)
+
+実装しました。記事は[こちら](https://zenn.dev/articles/remote_mcp_server)
 
 MCPサーバー経由でナレッジベースにアクセスできたらとても面白そうだなと思っています。
 cloudflareで立てるか、自前で諸々作るか悩んでます
