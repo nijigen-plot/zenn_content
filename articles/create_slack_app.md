@@ -38,7 +38,8 @@ published: false
 
 アプリ画面左タブの「App Home」に`App Display Name`があるのでそこから変更します。
 
-![](/images/create_slack_app/スクリーンショット%202025-09-15%20185225.png)
+![](/images/create_slack_app/スクリーンショット%202025-09-14%20163007.png)
+
 
 #### Scope設定
 
