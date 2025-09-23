@@ -3,7 +3,7 @@ title: "@メンションで返信を行ってくれるSlackアプリを作る"
 emoji: "🤖"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["slack", "python", "ai"]
-published: false
+published: true
 ---
 
 ## はじめに
