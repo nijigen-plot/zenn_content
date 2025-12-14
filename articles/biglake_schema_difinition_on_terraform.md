@@ -2,21 +2,21 @@
 title: "List型で躓かない BigLakeテーブルのJSONスキーマ定義"
 emoji: "🐙"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["BigQuery", "Terraform", "parquet"]
+topics: ["BigQuery", "Terraform", "Parquet"]
 published: false
 ---
 
 ## 内容
 
-BigQueryのBigQueryテーブルリソースをTerraform [google_bigquery_schema](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_table)で作成する場合、
+BigQueryのBigLakeテーブルをTerraform [google_bigquery_schema](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_table)で作成する場合、
 `external_data_configuration`引数に情報を入れ、`schema`引数にスキーマの情報をjsonで書く必要があります。
-その際、ListやMap型のような複数の要素を持つデータについて、どのようにjsonで型を定義すればいいのかで多少時間を消費してしまうときがありました。
+その際、ListやMap型のような複数の要素を持つデータについて、どのようにjsonで型を定義すればいいのかで多少時間を消費してしまうことがありました。
 
 本記事では「スムーズな定義方法」と、「なぜそれでうまくいくのか」を書いていきます。
 
 ## スムーズな定義方法
 
-スムーズに定義を行う方法は[duckDB](https://duckdb.org/)の[Auto Detection](https://duckdb.org/docs/stable/data/csv/auto_detection)でファイルを読み取り→[parquetファイルで書き出し](https://duckdb.org/docs/stable/sql/statements/copy#copy--to)、[parquet_schema()](https://duckdb.org/docs/stable/data/parquet/metadata#parquet-schema)を用いてparquet metadataを表示し、それをもとにjsonスキーマを作成することです。
+スムーズに定義を行うおすすめの方法は[duckDB](https://duckdb.org/)の[Auto Detection](https://duckdb.org/docs/stable/data/csv/auto_detection)でファイルを読み取り→[parquetファイルで書き出し](https://duckdb.org/docs/stable/sql/statements/copy#copy--to)、[parquet_schema()](https://duckdb.org/docs/stable/data/parquet/metadata#parquet-schema)を用いてparquet metadataを表示し、それをもとにjsonスキーマを作成する です。
 
 ```mermaid
 flowchart TD
@@ -30,9 +30,9 @@ flowchart TD
 ```
 
 
-なぜこれでうまくいくのか気になったので調べてみました。
-
 ## BigLakeでのparquet読み取り時List Logical Type仕様
+
+「なぜこれでうまくいくのか」はBigQuery,parquet,DuckDBの仕様を読むとわかります。
 
 https://docs.cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet#list_logical_type
 
@@ -100,6 +100,8 @@ DESCRIBEではduckDBの解釈ベースの表示になるため`parquet_schema()`
 
 ## 実際に試してみる
 
+ということで、スムーズな定義方法について試してみます。
+
 環境は
 
 - duckdb v1.4.2
@@ -107,7 +109,7 @@ DESCRIBEではduckDBの解釈ベースの表示になるため`parquet_schema()`
 - terraform hashicorp/google v.5.45.2
 
 
-以下のデータを使って試してみます。
+使用するデータは以下のような形です。
 
 ```json:test.jsonl
 {"id":1,"nums":[1,2,null],"events":[{"ts":"2025-12-01T00:00:00Z","kind":"a"},{"ts":null,"kind":"b"}],"tags":[{"key":"env","value":"prod"},{"key":"team","value":null}]}
@@ -180,7 +182,7 @@ D DESCRIBE SELECT * FROM 'test.parquet';
 
 terraformからBigLakeテーブルを作るためのjsonを作成し、BigLakeテーブルを作ります。
 
-duckDBのparquet_schemaのnameをみつつ書いていきます。
+duckDBのparquet_schemaのnameを見つつ書いていきます。
 
 ```json:schema.json( #以降はコメント)
 [
@@ -388,8 +390,11 @@ Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 
 ![](/images/biglake_schema_difinition_on_terraform/2025-12-14215550.png)
 
-無事に読めていますね！テストデータでは空配列`[]`と`null`がどちらもありますので、その場合は最外層定義時にmodeを`NULLABLE`にすれば読めます。
+無事に読めていますね！テストデータでは空配列`[]`と`null`がどちらもありますので、その場合は最外層定義時にmodeを`NULLABLE`にすればこのように読めます。
 
 ## まとめ
 
-BigLakeテーブルでparquetファイルを読ませる際の型定義は[parquet-schema List Logical Type](https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#lists)に従って解釈されるので、それに準じたjson schemaを定義すればOK!
+BigLakeテーブルでparquetファイルを読ませる際の型定義は[parquet-schema List Logical Type](https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#lists)に従って解釈されるので、それに準じたjson schemaを定義すればよい
+
+
+ここまで読んでいただきありがとうございました。誤りや意見などあればコメントいただけますと嬉しいです。
