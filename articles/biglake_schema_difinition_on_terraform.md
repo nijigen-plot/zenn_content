@@ -328,7 +328,6 @@ resource "google_bigquery_table" "external" {
   dataset_id  = google_bigquery_dataset.biglake_dataset.dataset_id
   table_id    = var.table_id
   description = "BigLake external table for testing"
-  # スキーマファイルを読み込み
   schema              = file("${path.module}/schema.json")
   deletion_protection = false
   external_data_configuration {
@@ -340,7 +339,7 @@ resource "google_bigquery_table" "external" {
     connection_id       = google_bigquery_connection.biglake.id
     metadata_cache_mode = "AUTOMATIC"
   }
-  max_staleness = "0-0 0 10:0:0" # 10時間
+  max_staleness = "0-0 0 10:0:0"
   depends_on = [
     google_bigquery_dataset.biglake_dataset,
     google_bigquery_connection.biglake
