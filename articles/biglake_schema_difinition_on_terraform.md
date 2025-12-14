@@ -3,7 +3,7 @@ title: "List型で躓かない BigLakeテーブルのJSONスキーマ定義"
 emoji: "🐙"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["BigQuery", "Terraform", "Parquet"]
-published: false
+published: true
 ---
 
 ## 内容
